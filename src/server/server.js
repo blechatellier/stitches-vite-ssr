@@ -16,15 +16,14 @@ import { createServer as createViteServer } from "vite";
       req.originalUrl,
       readFileSync(resolve("index.html"), "utf-8")
     );
-    const render = (await vite.ssrLoadModule(join("src/client/server.jsx")))
-      .render;
+    const server = await vite.ssrLoadModule(join("src/client/server.jsx"));
 
-    let styles = [];
-    const appHtml = await render(styles);
+    const appHtml = await server.render();
+    const style = await server.renderStyle();
 
     const html = template
       .replace("<!--root-->", appHtml)
-      .replace("<!--head-->", `<style>${styles.join("")}</style>`);
+      .replace("<!--head-->", style);
     res.status(200).set({ "Content-Type": "text/html" }).end(html);
   });
   app.listen(3000);
